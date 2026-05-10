@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import shap
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, log_loss
+from sklearn.metrics import accuracy_score, f1_score, log_loss, confusion_matrix, ConfusionMatrixDisplay
 
 from phrasebank_data import load_financial_phrasebank_dataset
 
@@ -88,6 +88,13 @@ example_expl = shap.Explanation(
 shap.plots.waterfall(example_expl, show=False)
 plt.title("Baseline (TF-IDF + Logistic Regression)")
 plt.savefig("./results/baseline_shap_waterfall.png", dpi=300, bbox_inches="tight")
+plt.close()
+
+cm = confusion_matrix(test_labels, preds)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot(values_format="d")
+plt.title("Baseline Confusion Matrix")
+plt.savefig("./results/baseline_confusion_matrix.png", dpi=300, bbox_inches="tight")
 plt.close()
 
 print("Baseline evaluation complete. Metrics and SHAP plot saved to ./results/")

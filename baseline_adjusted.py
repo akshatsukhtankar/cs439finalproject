@@ -7,7 +7,7 @@ import shap
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction import text
-from sklearn.metrics import accuracy_score, f1_score, log_loss
+from sklearn.metrics import accuracy_score, f1_score, log_loss, confusion_matrix, ConfusionMatrixDisplay
 
 from phrasebank_data import load_financial_phrasebank_dataset
 
@@ -94,6 +94,13 @@ example_expl = shap.Explanation(
 shap.plots.waterfall(example_expl, show=False)
 plt.title("Adjusted Baseline (TF-IDF + Logistic Regression + Custom Stop Words)")
 plt.savefig("./results/baseline_adjusted_shap_waterfall.png", dpi=300, bbox_inches="tight")
+plt.close()
+
+cm = confusion_matrix(test_labels, preds)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot(values_format="d")
+plt.title("Adjusted Baseline Confusion Matrix")
+plt.savefig("./results/baseline_adjusted_confusion_matrix.png", dpi=300, bbox_inches="tight")
 plt.close()
 
 print("Baseline adjusted evaluation complete. Metrics and SHAP plot saved to ./results/")

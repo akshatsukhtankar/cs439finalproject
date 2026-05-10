@@ -5,6 +5,7 @@ import evaluate
 import numpy as np
 import shap
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from transformers import (
     AutoTokenizer,
     AutoModelForSequenceClassification,
@@ -47,6 +48,17 @@ peft_config = LoraConfig(
 
 peft_model = get_peft_model(base_model, peft_config)
 peft_model.print_trainable_parameters()
+
+def count_params(model):
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    total = sum(p.numel() for p in model.parameters())
+    return trainable, total
+
+trainable_params, total_params = count_params(peft_model)
+print(
+    f"Trainable params: {trainable_params:,} / Total params: {total_params:,} "
+    f"({trainable_params / total_params:.2%})"
+)
 
 # setup for metrics 
 accuracy_metric = evaluate.load("accuracy")
@@ -91,6 +103,17 @@ trainer = Trainer(
 trainer.train()
 eval_results = trainer.evaluate()
 print("Evaluation Results:", eval_results)
+
+eval_preds = trainer.predict(tokenized_datasets["test"])
+eval_logits = eval_preds.predictions
+eval_labels = eval_preds.label_ids
+eval_classes = np.argmax(eval_logits, axis=1)
+cm = confusion_matrix(eval_labels, eval_classes)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot(values_format="d")
+plt.title("PEFT (LoRA RoBERTa) Confusion Matrix")
+plt.savefig("./results/peft_confusion_matrix.png", dpi=300, bbox_inches="tight")
+plt.close()
 
 os.makedirs("./results", exist_ok=True)
 with open("./results/peft_metrics.json", "w", encoding="utf-8") as f:
