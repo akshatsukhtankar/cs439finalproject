@@ -26,7 +26,7 @@ Financial text often contains unique semantic structures where general-purpose m
 
 ## Usage
 
-The project is structured into three main modules:
+The project is structured into four main modules:
 
 1. Data Preparation
    `phrasebank_data.py` contains the logic for loading and splitting the Financial PhraseBank dataset. By default, it uses the `sentences_75agree` configuration to ensure high-quality ground truth labels.
@@ -38,7 +38,14 @@ The project is structured into three main modules:
    ```
    This script will output performance metrics (Accuracy, F1-Score, Runtime) and save a SHAP waterfall plot to the `./results` directory.
 
-3. PEFT (LoRA) Model
+3. Adjusted Baseline Model
+   This baseline keeps finance-relevant directional words (e.g., up, down, over) by customizing the stop-word list:
+   ```bash
+   python baseline_adjusted.py
+   ```
+   This script will output performance metrics and save an adjusted SHAP waterfall plot to the `./results` directory.
+
+4. PEFT (LoRA) Model
    To execute the fine-tuning pipeline for the RoBERTa model:
    ```bash
    python train_peft.py
@@ -49,8 +56,8 @@ The project is structured into three main modules:
 
 Evaluation metrics and visualizations are automatically saved to the `./results` folder:
 
-- `baseline_metrics.json` / `peft_metrics.json`: Detailed performance logs.
-- `baseline_shap_waterfall.png` / `peft_shap_waterfall.png`: Feature importance visualizations for qualitative analysis.
+- `baseline_metrics.json` / `baseline_adjusted_metrics.json` / `peft_metrics.json`: Detailed performance logs.
+- `baseline_shap_waterfall.png` / `baseline_adjusted_shap_waterfall.png` / `peft_shap_waterfall.png`: Feature importance visualizations for qualitative analysis.
 - `peft_shap.html`: SHAP text explanation for an example prediction.
 
 ## Reproducibility
@@ -60,5 +67,6 @@ To ensure identical results, all scripts utilize a fixed random seed of 42. The 
 ## Summary of Repository Structure
 - `phrasebank_data.py`: Handles dataset loading from the Hugging Face Hub.
 - `baseline.py`: Implements the scikit-learn TF-IDF pipeline.
+- `baseline_adjusted.py`: Baseline with a custom stop-word list that preserves finance-relevant directional terms.
 - `train_peft.py`: Implements the LoRA fine-tuning and SHAP analysis for the transformer.
 - `results/`: Output directory for models and metrics.
